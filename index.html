@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AidaPay — Investor Data Room</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+:root {
+  --p: #6C02D4;
+  --p2: #9333EA;
+  --p-light: rgba(108,2,212,0.08);
+  --p-border: rgba(108,2,212,0.2);
+  --accent: #F17367;
+  --accent2: #F8A49F;
+  --success: #00B894;
+  --success-light: rgba(0,184,148,0.1);
+  --warning: #F5A623;
+  --warn-light: rgba(245,166,35,0.1);
+  --bg: #FAFAFA;
+  --bg2: #f1f8fa;
+  --card: rgba(255,255,255,0.95);
+  --card2: rgba(108,2,212,0.04);
+  --border: rgba(108,2,212,0.14);
+  --text: #1A0A3C;
+  --text2: #4A3868;
+  --text3: #8B7AA8;
+  --font-head: 'Syne', sans-serif;
+  --font-data: 'DM Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Background mesh */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(108,2,212,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(241,115,103,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 60% at 50% 50%, rgba(0,184,148,0.02) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container { max-width: 1280px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+/* HEADER */
+header {
+  border-bottom: 1px solid var(--border);
+  background: rgba(250,250,250,0.95);
+  backdrop-filter: blur(20px);
+  position: sticky; top: 0; z-index: 100;
+  padding: 0;
+}
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0;
+  gap: 16px;
+}
+.logo-area { display: flex; align-items: center; gap: 14px; }
+.logo-mark {
+  width: 36px; height: 36px;
+  background: var(--p);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.logo-text { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--text); }
+.logo-text span { color: var(--p2); }
+.header-badge {
+  font-family: var(--font-data); font-size: 10px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--p-light); border: 1px solid var(--p-border);
+  color: var(--p2); padding: 5px 12px; border-radius: 4px;
+}
+.header-right { display: flex; align-items: center; gap: 16px; }
+.confidential {
+  font-family: var(--font-data); font-size: 10px; color: var(--text3);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.live-dot {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-data); font-size: 11px; color: var(--success);
+}
+.live-dot::before {
+  content: '';
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* HERO */
+.hero { padding: 40px 0 32px; }
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 20px; margin-bottom: 28px; }
+.hero-title { font-family: var(--font-head); font-size: 28px; font-weight: 700; line-height: 1.2; }
+.hero-title span { color: var(--p2); }
+.hero-sub { font-size: 14px; color: var(--text2); margin-top: 6px; }
+.period-note { font-family: var(--font-data); font-size: 12px; color: var(--text3); }
+
+/* MONTH FILTER */
+.filter-bar {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 32px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 1px 4px rgba(108,2,212,0.06);
+}
+.filter-label { font-family: var(--font-data); font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px; flex-shrink: 0; }
+.month-btn {
+  font-family: var(--font-data); font-size: 12px; font-weight: 500;
+  padding: 7px 14px; border-radius: 6px;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--text2);
+  cursor: pointer; transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.month-btn:hover { border-color: var(--p); color: var(--text); background: var(--p-light); }
+.month-btn.active {
+  background: var(--p); border-color: var(--p);
+  color: #fff; box-shadow: 0 0 16px rgba(100,50,235,0.35);
+}
+.month-btn.latest {
+  border-color: var(--success); color: var(--success);
+}
+.month-btn.latest.active { background: var(--success); color: #000; border-color: var(--success); box-shadow: 0 0 16px rgba(0,217,160,0.3); }
+.view-btns { margin-left: auto; display: flex; gap: 6px; }
+.view-btn {
+  font-family: var(--font-data); font-size: 11px; font-weight: 500;
+  padding: 6px 12px; border-radius: 5px;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--text3);
+  cursor: pointer; transition: all 0.2s ease;
+}
+.view-btn.active, .view-btn:hover { border-color: var(--p2); color: var(--p2); }
+
+/* KPI GRID */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.kpi-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  cursor: default;
+  box-shadow: 0 1px 4px rgba(108,2,212,0.06);
+}
+.kpi-card:hover { border-color: var(--p); transform: translateY(-2px); }
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--p), transparent);
+  opacity: 0.5;
+}
+.kpi-card.green::before { background: linear-gradient(90deg, transparent, var(--success), transparent); }
+.kpi-card.red::before { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+.kpi-card.warn::before { background: linear-gradient(90deg, transparent, var(--warning), transparent); }
+.kpi-label { font-family: var(--font-data); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text3); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+.kpi-icon { font-size: 14px; }
+.kpi-value { font-family: var(--font-head); font-size: 24px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 8px; transition: all 0.3s; }
+.kpi-footer { display: flex; align-items: center; justify-content: space-between; }
+.kpi-sub { font-size: 11px; color: var(--text3); }
+.kpi-badge {
+  font-family: var(--font-data); font-size: 11px; font-weight: 500;
+  padding: 3px 8px; border-radius: 4px;
+}
+.badge-up { background: rgba(0,217,160,0.15); color: var(--success); }
+.badge-down { background: rgba(255,77,106,0.15); color: var(--accent); }
+.badge-neutral { background: var(--p-light); color: var(--p2); }
+.badge-warn { background: var(--warn-light); color: var(--warning); }
+
+/* CHARTS */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.chart-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  transition: border-color 0.2s;
+  box-shadow: 0 1px 4px rgba(108,2,212,0.06);
+}
+.chart-card:hover { border-color: rgba(100,50,235,0.4); }
+.chart-card.full { grid-column: 1 / -1; }
+.chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+.chart-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--text); }
+.chart-sub { font-size: 12px; color: var(--text3); margin-top: 3px; }
+.chart-legend { display: flex; gap: 14px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--font-data); font-size: 11px; color: var(--text2); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.chart-wrap { position: relative; height: 220px; }
+.chart-wrap-tall { position: relative; height: 280px; }
+
+/* ATTRITION */
+.attrition-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.attrition-card {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(108,2,212,0.06);
+}
+.attrition-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid rgba(100,50,235,0.1);
+}
+.attrition-row:last-child { border-bottom: none; }
+.attrition-month { font-family: var(--font-data); font-size: 12px; color: var(--text3); width: 72px; flex-shrink: 0; }
+.attrition-bars { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.abar-row { display: flex; align-items: center; gap: 8px; }
+.abar-track { flex: 1; height: 6px; background: rgba(100,50,235,0.1); border-radius: 3px; overflow: hidden; }
+.abar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.abar-fill.gained { background: var(--success); }
+.abar-fill.retained { background: var(--p); }
+.abar-fill.churned { background: var(--accent); }
+.abar-label { font-family: var(--font-data); font-size: 10px; width: 28px; text-align: right; flex-shrink: 0; }
+.abar-label.gained { color: var(--success); }
+.abar-label.retained { color: var(--p2); }
+.abar-label.churned { color: var(--accent); }
+.attrition-net { font-family: var(--font-data); font-size: 12px; font-weight: 500; width: 56px; text-align: right; flex-shrink: 0; }
+
+/* UNIT ECONOMICS */
+.economics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.econ-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.econ-label { font-family: var(--font-data); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 8px; }
+.econ-value { font-family: var(--font-head); font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.econ-sub { font-size: 11px; color: var(--text3); }
+
+/* SECTION HEADER */
+.section-head {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  font-family: var(--font-data); font-size: 11px;
+  color: var(--p2); background: var(--p-light);
+  border: 1px solid var(--p-border);
+  padding: 3px 8px; border-radius: 4px;
+  flex-shrink: 0;
+}
+.section-title { font-family: var(--font-head); font-size: 17px; font-weight: 600; }
+.section-desc { font-size: 12px; color: var(--text3); margin-left: auto; }
+
+/* SCANPAY */
+.sp-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px; margin-bottom: 28px;
+}
+.sp-card {
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px;
+  text-align: center;
+  transition: all 0.2s;
+}
+.sp-card:hover { border-color: var(--p); }
+.sp-card.highlight {
+  background: linear-gradient(135deg, rgba(100,50,235,0.15), rgba(0,217,160,0.08));
+  border-color: var(--success);
+}
+.sp-period { font-family: var(--font-data); font-size: 10px; color: var(--text3); margin-bottom: 8px; letter-spacing: 0.08em; }
+.sp-adopt { font-family: var(--font-head); font-size: 26px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.sp-card.highlight .sp-adopt { color: var(--success); }
+.sp-txfrs { font-size: 11px; color: var(--text3); }
+.sp-vol { font-family: var(--font-data); font-size: 12px; color: var(--p2); margin-top: 4px; }
+
+/* YOY CALLOUT */
+.yoy-callout {
+  background: linear-gradient(135deg, rgba(0,217,160,0.1) 0%, rgba(100,50,235,0.08) 100%);
+  border: 1px solid var(--success);
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 20px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.callout-icon { font-size: 28px; flex-shrink: 0; }
+.callout-text h3 { font-family: var(--font-head); font-size: 15px; font-weight: 600; color: var(--success); margin-bottom: 4px; }
+.callout-text p { font-size: 13px; color: var(--text2); line-height: 1.5; }
+.callout-stat { margin-left: auto; text-align: right; flex-shrink: 0; }
+.callout-stat .big { font-family: var(--font-head); font-size: 32px; font-weight: 800; color: var(--success); }
+.callout-stat .small { font-size: 12px; color: var(--text3); }
+
+/* PROFILE NOTE */
+.profile-note {
+  background: var(--warn-light);
+  border: 1px solid rgba(245,166,35,0.3);
+  border-radius: 10px; padding: 16px 20px;
+  margin-bottom: 16px;
+}
+.profile-note p { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.profile-note strong { color: var(--warning); }
+
+.profile-inferred {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px; margin-bottom: 28px;
+}
+.profile-card {
+  background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 16px;
+}
+.profile-card-title { font-family: var(--font-data); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text3); margin-bottom: 10px; }
+.profile-card-val { font-family: var(--font-head); font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.profile-card-desc { font-size: 12px; color: var(--text3); line-height: 1.5; }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 0;
+  margin-top: 48px;
+  background: #ffffff;
+}
+.footer-inner {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+}
+.footer-text { font-family: var(--font-data); font-size: 11px; color: var(--text3); }
+.footer-brand { font-family: var(--font-head); font-size: 13px; font-weight: 700; color: var(--text2); }
+.footer-brand span { color: var(--p2); }
+
+/* DIVIDER */
+.section-gap { margin-bottom: 36px; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .chart-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 22px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .callout-stat { display: none; }
+  .view-btns { display: none; }
+}
+
+/* Transitions */
+.kpi-value, .kpi-badge, .chart-wrap canvas { transition: all 0.35s ease; }
+.tab-content { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Alert pill */
+.alert-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-data); font-size: 11px;
+  padding: 5px 12px; border-radius: 20px;
+}
+.alert-pill.up { background: rgba(0,217,160,0.12); color: var(--success); border: 1px solid rgba(0,217,160,0.3); }
+.alert-pill.down { background: rgba(255,77,106,0.12); color: var(--accent); border: 1px solid rgba(255,77,106,0.3); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="header-inner">
+      <div class="logo-area">
+        <img src="22 aida.png" alt="AidaPay" style="height:40px;width:auto;display:block;object-fit:contain;">
+        <div class="header-badge">Investor Data Room</div>
+      </div>
+      <div class="header-right">
+        <span class="confidential">Confidential · Pre-Seed 2026</span>
+        <span class="live-dot">Live Data</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-top">
+      <div>
+        <div class="hero-title">Traction Intelligence<br><span>Dashboard</span></div>
+        <div class="hero-sub">Verified metrics · Oct 2025 — Apr 2026 · Generated May 7, 2026</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="period-note">Platform live since May 2020</div>
+        <div class="period-note">Total lifetime volume: ₦12.88B</div>
+        <div class="period-note">Total transactions: 33.4M</div>
+      </div>
+    </div>
+
+    <!-- MONTH FILTER -->
+    <div class="filter-bar">
+      <span class="filter-label">Period</span>
+      <button class="month-btn active" onclick="setMonth(0)" id="btn-0">Oct 2025</button>
+      <button class="month-btn" onclick="setMonth(1)" id="btn-1">Nov 2025</button>
+      <button class="month-btn" onclick="setMonth(2)" id="btn-2">Dec 2025</button>
+      <button class="month-btn" onclick="setMonth(3)" id="btn-3">Jan 2026</button>
+      <button class="month-btn" onclick="setMonth(4)" id="btn-4">Feb 2026</button>
+      <button class="month-btn" onclick="setMonth(5)" id="btn-5">Mar 2026</button>
+      <button class="month-btn latest" onclick="setMonth(6)" id="btn-6">Apr 2026 ★</button>
+      <div class="view-btns">
+        <button class="view-btn active" onclick="setView('overview')">Overview</button>
+        <button class="view-btn" onclick="setView('trends')">Trends</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="section-gap">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <span class="section-title">Monthly Snapshot</span>
+      <span class="section-desc" id="snapshot-period">October 2025</span>
+    </div>
+    <div class="kpi-grid" id="kpi-grid">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+
+  <!-- YOY CALLOUT for Apr 2026 -->
+  <div class="yoy-callout" id="yoy-callout" style="display:none;">
+    <div class="callout-icon">🚀</div>
+    <div class="callout-text">
+      <h3>April 2026 — First Positive Year-over-Year Month</h3>
+      <p>April 2026 revenue of ₦559.2M exceeds April 2025 (₦371.7M) by +50.4% YoY — the first positive annual comparison since the platform's 2025 transition period. Transactions per day hit 61,190, the highest since early 2025.</p>
+    </div>
+    <div class="callout-stat">
+      <div class="big">+50.4%</div>
+      <div class="small">YoY Revenue Growth</div>
+    </div>
+  </div>
+
+  <!-- REVENUE + TRANSACTIONS CHARTS -->
+  <div class="section-gap">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <span class="section-title">Revenue & Transaction Volume</span>
+      <span class="section-desc">6-month trend · Bill Payments</span>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Monthly Revenue</div>
+            <div class="chart-sub">Gross transaction volume processed (₦)</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#6432EB;"></div>Revenue</div>
+            <div class="legend-item"><div class="legend-dot" style="background:rgba(100,50,235,0.25);border:1px dashed #6432EB;"></div>MoM Δ</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="revenueChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Transaction Volume</div>
+            <div class="chart-sub">Total bill payment transactions per month</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#00D9A0;"></div>Transactions</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#F5A623;"></div>Per Day</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="txnChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <!-- YoY Comparison -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Year-over-Year Revenue Comparison</div>
+          <div class="chart-sub">Same month: 2025 vs 2026 — tracking recovery back to 2025 baseline</div>
+        </div>
+        <div id="yoy-badge" class="alert-pill down">YoY Trend</div>
+      </div>
+      <div class="chart-wrap" style="height:180px;">
+        <canvas id="yoyChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAU + USER GROWTH -->
+  <div class="section-gap">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <span class="section-title">User Growth & Monthly Active Users</span>
+      <span class="section-desc">Acquisition · Retention · Net growth</span>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">MAU Trend</div>
+            <div class="chart-sub">Monthly active users — recovery from Nov 2025 trough</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#8B5CF6;"></div>MAU</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#00D9A0;"></div>New Users</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="mauChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Retention vs Churn Rate</div>
+            <div class="chart-sub">Monthly user retention improving consistently</div>
+          </div>
+          <div class="chart-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:#00D9A0;"></div>Retained %</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#FF4D6A;"></div>Churned %</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="retentionChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER ATTRITION -->
+  <div class="section-gap">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <span class="section-title">Customer Attrition Analysis</span>
+      <span class="section-desc">Gained · Retained · Lost per month</span>
+    </div>
+    <div class="attrition-grid">
+      <div class="attrition-card">
+        <div style="margin-bottom:14px;">
+          <div class="chart-title">User Movement</div>
+          <div class="chart-sub" style="font-size:11px;color:var(--text3);margin-top:4px;">New users gained, existing users retained, and churned users each month</div>
+        </div>
+        <div style="display:flex;gap:14px;margin-bottom:16px;">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--success);"></div><span style="font-size:11px;">Gained</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--p);"></div><span style="font-size:11px;">Retained</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent);"></div><span style="font-size:11px;">Churned</span></div>
+        </div>
+        <div id="attrition-rows"><!-- rendered by JS --></div>
+      </div>
+      <div class="attrition-card">
+        <div style="margin-bottom:20px;">
+          <div class="chart-title">Net User Growth</div>
+          <div class="chart-sub" style="font-size:11px;color:var(--text3);margin-top:4px;">Net monthly change in active user base</div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="netGrowthChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- UNIT ECONOMICS -->
+  <div class="section-gap">
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <span class="section-title">Unit Economics</span>
+      <span class="section-desc" id="econ-period">October 2025</span>
+    </div>
+    <div class="economics-row" id="econ-row"><!-- rendered by JS --></div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">CAC Trend — Improving Efficiency</div>
+          <div class="chart-sub">Customer acquisition cost per month (₦500K fixed marketing spend)</div>
+        </div>
+      </div>
+      <div class="chart-wrap" style="height:160px;">
+        <canvas id="cacChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCANPAY -->
+  <div class="section-gap">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <span class="section-title">ScanPay Adoption</span>
+      <span class="section-desc">Launched May 2025 · Zero marketing spend</span>
+    </div>
+    <div class="sp-grid">
+      <div class="sp-card">
+        <div class="sp-period">May 2025</div>
+        <div class="sp-adopt">0%</div>
+        <div class="sp-txfrs">73 transfers</div>
+        <div class="sp-vol">₦215K TPV</div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-period">Oct 2025</div>
+        <div class="sp-adopt">13.2%</div>
+        <div class="sp-txfrs">265 transfers</div>
+        <div class="sp-vol">₦2.49M TPV</div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-period">Nov 2025</div>
+        <div class="sp-adopt">26.1%</div>
+        <div class="sp-txfrs">203 transfers</div>
+        <div class="sp-vol">₦2.57M TPV</div>
+      </div>
+      <div class="sp-card">
+        <div class="sp-period">Dec 2025</div>
+        <div class="sp-adopt">39.5%</div>
+        <div class="sp-txfrs">1,026 transfers</div>
+        <div class="sp-vol">₦6.35M TPV</div>
+      </div>
+      <div class="sp-card highlight">
+        <div class="sp-period">Q1 2026</div>
+        <div class="sp-adopt">44.3%</div>
+        <div class="sp-txfrs">2,563 transfers</div>
+        <div class="sp-vol">₦18.48M TPV</div>
+      </div>
+      <div class="sp-card" style="opacity:0.5;">
+        <div class="sp-period">Apr 2026</div>
+        <div class="sp-adopt">—</div>
+        <div class="sp-txfrs">Data pending</div>
+        <div class="sp-vol">Report in progress</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">ScanPay Adoption Rate Progression</div>
+          <div class="chart-sub">3.5% → 44.3% in 9 months · Organic · No marketing</div>
+        </div>
+        <span class="alert-pill up">+40.8pp in 9 months</span>
+      </div>
+      <div class="chart-wrap" style="height:160px;">
+        <canvas id="spChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER PROFILE -->
+  <div class="section-gap">
+    <div class="section-head">
+      <span class="section-num">07</span>
+      <span class="section-title">Customer Profile</span>
+      <span class="section-desc">Inferred from platform data</span>
+    </div>
+    <div class="profile-inferred">
+      <div class="profile-card">
+        <div class="profile-card-title">Primary User Type</div>
+        <div class="profile-card-val">Utility Payer</div>
+        <div class="profile-card-desc">Users paying recurring bills: airtime, data, electricity, TV. High frequency (27–63 txns/month) indicates these are daily digital natives managing household expenses.</div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-title">Avg Transaction Value</div>
+        <div class="profile-card-val">₦305–₦436</div>
+        <div class="profile-card-desc">Consistent with small utility top-ups: airtime (₦100–₦500), data (₦300–₦1,000), electricity tokens. Working/middle-class Nigerians managing monthly bills.</div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-title">Avg Deposit Per User</div>
+        <div class="profile-card-val">₦794–₦1,205</div>
+        <div class="profile-card-desc">Users deposit small amounts frequently — typical micro-deposit behaviour consistent with informal economy workers managing cash in small increments.</div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-title">Engagement Intensity</div>
+        <div class="profile-card-val">High</div>
+        <div class="profile-card-desc">98.16% repeat transaction rate. Users return multiple times monthly — AidaPay is a habitual utility tool, not a one-time-use app. Near-zero single-use rate.</div>
+      </div>
+      <div class="profile-card">
+        <div class="profile-card-title">ScanPay Adopter Profile</div>
+        <div class="profile-card-val">Tech-forward</div>
+        <div class="profile-card-desc">44% of transfer users adopted ScanPay organically — early adopters who value speed over familiarity. Likely younger urban Nigerians comfortable with AI-powered tools.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ENGAGEMENT -->
+  <div class="section-gap">
+    <div class="section-head">
+      <span class="section-num">08</span>
+      <span class="section-title">Engagement Metrics</span>
+      <span class="section-desc" id="engage-period">October 2025</span>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Avg Transactions Per Active User</div>
+            <div class="chart-sub">Usage intensity per active user per month</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="engageChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Repeat Transaction Rate</div>
+            <div class="chart-sub">% of active users who transacted more than once (monthly)</div>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="repeatChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIFETIME + GLOBAL -->
+  <div class="section-gap">
+    <div class="section-head">
+      <span class="section-num">09</span>
+      <span class="section-title">Lifetime Platform Metrics</span>
+      <span class="section-desc">All-time · May 2020 — Apr 2026</span>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card green">
+        <div class="kpi-label">Lifetime Volume <span class="kpi-icon">💰</span></div>
+        <div class="kpi-value">₦12.88B</div>
+        <div class="kpi-footer"><span class="kpi-sub">Gross bills processed</span><span class="kpi-badge badge-up">All-time</span></div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Lifetime Transactions <span class="kpi-icon">📊</span></div>
+        <div class="kpi-value">33.4M</div>
+        <div class="kpi-footer"><span class="kpi-sub">Bill payment count</span><span class="kpi-badge badge-up">All-time</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Registered Users <span class="kpi-icon">👤</span></div>
+        <div class="kpi-value">397,906</div>
+        <div class="kpi-footer"><span class="kpi-sub">Platform all-time</span><span class="kpi-badge badge-neutral">Apr 2026</span></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">All-Time Peak MAU <span class="kpi-icon">📈</span></div>
+        <div class="kpi-value">63,983</div>
+        <div class="kpi-footer"><span class="kpi-sub">February 2025</span><span class="kpi-badge badge-neutral">Peak</span></div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">LTV : CAC <span class="kpi-icon">⚡</span></div>
+        <div class="kpi-value">1,815x</div>
+        <div class="kpi-footer"><span class="kpi-sub">Apr 2026 · ₦65 CAC</span><span class="kpi-badge badge-up">Excellent</span></div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Repeat Txn Rate <span class="kpi-icon">🔄</span></div>
+        <div class="kpi-value">97.52%</div>
+        <div class="kpi-footer"><span class="kpi-sub">Apr 2026 cohort</span><span class="kpi-badge badge-up">Best-in-class</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-text">Confidential · For Authorized Investors Only · AidaPay Pre-Seed Round 2026</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <img src="22 aida.png" alt="AidaPay" style="height:32px;width:auto;display:block;object-fit:contain;">
+        <span class="footer-text">growth@aidapay.ng</span>
+      </div>
+      <div class="footer-text">Data verified from platform source · Veqi Ltd. © 2026</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ============ DATA ============
+const MONTHS = ['Oct 2025','Nov 2025','Dec 2025','Jan 2026','Feb 2026','Mar 2026','Apr 2026'];
+const SHORT = ['Oct','Nov','Dec','Jan','Feb','Mar','Apr'];
+
+const D = {
+  revenue:     [260778886, 234808575, 248624742, 255182468, 246777740, 305493945, 559197022],
+  txns:        [599419, 538367, 616810, 702740, 754739, 983111, 1835696],
+  txnsDay:     [19981, 17946, 19897, 22669, 26955, 31713, 61190],
+  avgTx:       [435.05, 436.15, 403.08, 363.13, 326.97, 310.74, 304.62],
+  mau:         [21696, 19093, 19892, 21243, 22259, 24788, 28984],
+  newUsers:    [3017, 2001, 2943, 3886, 4031, 5165, 7644],
+  retention:   [72.52, 74.29, 79.18, 81.20, 82.60, 82.62, 83.63],
+  churn:       [27.48, 25.71, 20.82, 18.80, 17.40, 17.38, 16.37],
+  repeat:      [95.42, 96.15, 96.57, 96.65, 97.07, 97.25, 97.52],
+  avgTxUser:   [27.63, 28.20, 31.01, 33.08, 33.91, 39.66, 63.33],
+  avgRevUser:  [12019, 12298, 12498, 12012, 11086, 12324, 19293],
+  cac:         [165.73, 249.88, 169.89, 128.67, 124.04, 96.81, 65.41],
+  ltv:         [210986, 343790, 200342, 140056, 119044, 107228, 118751],
+  platformUsers:[397897, 397897, 397897, 397902, 397902, 397903, 397906],
+  deposits:    [261289319, 235774798, 256725837, 264026291, 251532467, 306269787, 574561227],
+  avgDep:      [1173.63, 1174.42, 1103.15, 981.41, 849.07, 794.19, 1205.21],
+};
+
+const priorMAU = [24591, 21696, 19093, 19892, 21243, 22259, 24788];
+const yoyPrev  = [493457383, 519879919, 581678757, 613190194, 584068202, 507576255, 371747637];
+
+// Attrition
+const retained = D.mau.map((m, i) => m - D.newUsers[i]);
+const churned  = priorMAU.map((p, i) => p - retained[i]);
+const netGrowth = D.mau.map((m, i) => m - priorMAU[i]);
+const mom      = D.revenue.map((r, i) => i === 0 ? null : ((r - D.revenue[i-1]) / D.revenue[i-1] * 100));
+const yoy      = D.revenue.map((r, i) => ((r - yoyPrev[i]) / yoyPrev[i] * 100));
+
+// Format helpers
+const fmtN = (n) => {
+  if (n >= 1e9) return '₦' + (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '₦' + (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '₦' + Math.round(n/1e3) + 'K';
+  return '₦' + Math.round(n).toLocaleString();
+};
+const fmtNum = (n) => n >= 1e6 ? (n/1e6).toFixed(2)+'M' : n >= 1e3 ? Math.round(n/1e3)+'K' : n.toLocaleString();
+const fmtPct = (n) => (n >= 0 ? '+' : '') + n.toFixed(1) + '%';
+
+let currentMonth = 0;
+const CHART_DEFAULTS = {
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false }, tooltip: {
+    backgroundColor: 'rgba(14,10,46,0.95)',
+    borderColor: 'rgba(100,50,235,0.4)', borderWidth: 1,
+    titleColor: '#B8B0D8', bodyColor: '#F0EEFF',
+    titleFont: { family: 'DM Mono', size: 11 },
+    bodyFont: { family: 'DM Mono', size: 12 },
+    padding: 10,
+  }},
+  scales: {
+    x: { grid: { color: 'rgba(100,50,235,0.08)' }, ticks: { color: '#7A6FA8', font: { family: 'DM Mono', size: 11 } } },
+    y: { grid: { color: 'rgba(100,50,235,0.08)' }, ticks: { color: '#7A6FA8', font: { family: 'DM Mono', size: 11 } } }
+  }
+};
+
+// ============ KPI CARDS ============
+function renderKPIs(idx) {
+  const container = document.getElementById('kpi-grid');
+  document.getElementById('snapshot-period').textContent = MONTHS[idx];
+  document.getElementById('econ-period').textContent = MONTHS[idx];
+  document.getElementById('engage-period').textContent = MONTHS[idx];
+
+  const momVal = mom[idx];
+  const yoyVal = yoy[idx];
+  const momBadge = momVal === null ? `<span class="kpi-badge badge-neutral">Baseline</span>` :
+    momVal >= 0 ? `<span class="kpi-badge badge-up">${fmtPct(momVal)} MoM</span>` :
+                  `<span class="kpi-badge badge-down">${fmtPct(momVal)} MoM</span>`;
+  const yoyBadge = yoyVal >= 0 ? `<span class="kpi-badge badge-up">${fmtPct(yoyVal)} YoY</span>` :
+                                  `<span class="kpi-badge badge-down">${fmtPct(yoyVal)} YoY</span>`;
+  const mauPrev = idx > 0 ? D.mau[idx-1] : priorMAU[0];
+  const mauChg = ((D.mau[idx] - mauPrev) / mauPrev * 100);
+  const mauBadge = mauChg >= 0 ? `<span class="kpi-badge badge-up">${fmtPct(mauChg)} MoM</span>` :
+                                   `<span class="kpi-badge badge-down">${fmtPct(mauChg)} MoM</span>`;
+
+  container.innerHTML = `
+    <div class="kpi-card green">
+      <div class="kpi-label">Monthly Revenue <span class="kpi-icon">💰</span></div>
+      <div class="kpi-value">${fmtN(D.revenue[idx])}</div>
+      <div class="kpi-footer"><span class="kpi-sub">Gross volume</span>${momBadge}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Transactions <span class="kpi-icon">📊</span></div>
+      <div class="kpi-value">${fmtNum(D.txns[idx])}</div>
+      <div class="kpi-footer"><span class="kpi-sub">${D.txnsDay[idx].toLocaleString()}/day avg</span>${yoyBadge}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Active Users (MAU) <span class="kpi-icon">👥</span></div>
+      <div class="kpi-value">${D.mau[idx].toLocaleString()}</div>
+      <div class="kpi-footer"><span class="kpi-sub">${D.newUsers[idx].toLocaleString()} new acquired</span>${mauBadge}</div>
+    </div>
+    <div class="kpi-card ${D.retention[idx] >= 80 ? 'green' : ''}">
+      <div class="kpi-label">Retention Rate <span class="kpi-icon">🔒</span></div>
+      <div class="kpi-value">${D.retention[idx]}%</div>
+      <div class="kpi-footer"><span class="kpi-sub">Churn: ${D.churn[idx]}%</span><span class="kpi-badge ${D.retention[idx] >= 80 ? 'badge-up' : 'badge-warn'}">${D.retention[idx] >= 80 ? 'Strong' : 'Improving'}</span></div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">CAC <span class="kpi-icon">🎯</span></div>
+      <div class="kpi-value">₦${D.cac[idx].toFixed(0)}</div>
+      <div class="kpi-footer"><span class="kpi-sub">₦500K mkt spend</span><span class="kpi-badge badge-up">LTV ${Math.round(D.ltv[idx]/D.cac[idx]).toLocaleString()}x</span></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Avg Tx Value <span class="kpi-icon">💳</span></div>
+      <div class="kpi-value">₦${D.avgTx[idx].toFixed(0)}</div>
+      <div class="kpi-footer"><span class="kpi-sub">Per transaction</span><span class="kpi-badge badge-neutral">${D.avgTxUser[idx].toFixed(0)} txns/user</span></div>
+    </div>
+  `;
+
+  // Economics row
+  document.getElementById('econ-row').innerHTML = `
+    <div class="econ-card"><div class="econ-label">Customer Acquisition Cost</div><div class="econ-value">₦${D.cac[idx].toFixed(2)}</div><div class="econ-sub">₦500K spend ÷ ${D.newUsers[idx].toLocaleString()} new users</div></div>
+    <div class="econ-card"><div class="econ-label">Lifetime Value</div><div class="econ-value">${fmtN(D.ltv[idx])}</div><div class="econ-sub">Avg user lifetime value</div></div>
+    <div class="econ-card"><div class="econ-label">LTV : CAC Ratio</div><div class="econ-value">${Math.round(D.ltv[idx]/D.cac[idx]).toLocaleString()}x</div><div class="econ-sub">Industry benchmark: &gt;3x</div></div>
+    <div class="econ-card"><div class="econ-label">Avg Rev / User</div><div class="econ-value">₦${D.avgRevUser[idx].toLocaleString()}</div><div class="econ-sub">Monthly gross per active user</div></div>
+    <div class="econ-card"><div class="econ-label">Platform Users</div><div class="econ-value">${D.platformUsers[idx].toLocaleString()}</div><div class="econ-sub">Total registered all-time</div></div>
+    <div class="econ-card"><div class="econ-label">Avg Deposit</div><div class="econ-value">₦${D.avgDep[idx].toFixed(0)}</div><div class="econ-sub">Per deposit transaction</div></div>
+  `;
+
+  // YoY callout
+  document.getElementById('yoy-callout').style.display = idx === 6 ? 'flex' : 'none';
+}
+
+// ============ ATTRITION ROWS ============
+function renderAttrition() {
+  const maxVal = Math.max(...D.newUsers, ...retained, ...churned);
+  let html = '';
+  MONTHS.forEach((m, i) => {
+    const net = netGrowth[i];
+    const netColor = net >= 0 ? 'var(--success)' : 'var(--accent)';
+    const gainedW = (D.newUsers[i] / maxVal * 100).toFixed(1);
+    const retW = (retained[i] / maxVal * 100).toFixed(1);
+    const churnW = (churned[i] / maxVal * 100).toFixed(1);
+    html += `
+      <div class="attrition-row">
+        <div class="attrition-month">${SHORT[i]} ${i < 3 ? "'25" : "'26"}</div>
+        <div class="attrition-bars">
+          <div class="abar-row">
+            <div class="abar-track"><div class="abar-fill gained" style="width:${gainedW}%"></div></div>
+            <div class="abar-label gained">+${D.newUsers[i].toLocaleString()}</div>
+          </div>
+          <div class="abar-row">
+            <div class="abar-track"><div class="abar-fill retained" style="width:${retW}%"></div></div>
+            <div class="abar-label retained">${retained[i].toLocaleString()}</div>
+          </div>
+          <div class="abar-row">
+            <div class="abar-track"><div class="abar-fill churned" style="width:${churnW}%"></div></div>
+            <div class="abar-label churned">-${churned[i].toLocaleString()}</div>
+          </div>
+        </div>
+        <div class="attrition-net" style="color:${netColor}">${net >= 0 ? '+' : ''}${net.toLocaleString()}</div>
+      </div>`;
+  });
+  document.getElementById('attrition-rows').innerHTML = html;
+}
+
+// ============ CHARTS ============
+let charts = {};
+function destroyChart(id) { if (charts[id]) { charts[id].destroy(); delete charts[id]; } }
+
+function buildCharts() {
+  const gridColor = 'rgba(108,2,212,0.06)';
+  const tickColor = '#8B7AA8';
+  const tickFont = { family: 'DM Mono', size: 10 };
+  const tooltipStyle = {
+    backgroundColor: 'rgba(26,10,60,0.95)',
+    borderColor: 'rgba(108,2,212,0.4)', borderWidth: 1,
+    titleColor: '#C4B8E0', bodyColor: '#F0EEFF',
+    titleFont: { family: 'DM Mono', size: 10 }, bodyFont: { family: 'DM Mono', size: 11 }, padding: 10,
+  };
+  const scalesBase = (yFmt) => ({
+    x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } },
+    y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont, callback: yFmt } }
+  });
+
+  // Revenue chart
+  destroyChart('revenueChart');
+  charts['revenueChart'] = new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: SHORT,
+      datasets: [{
+        label: 'Revenue',
+        data: D.revenue.map(r => r/1e6),
+        backgroundColor: SHORT.map((_, i) => i === 6 ? 'rgba(0,184,148,0.8)' : 'rgba(108,2,212,0.7)'),
+        borderColor: SHORT.map((_, i) => i === 6 ? '#00B894' : '#6C02D4'),
+        borderWidth: 1, borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => ` ₦${ctx.parsed.y.toFixed(1)}M` } } },
+      scales: { ...scalesBase((v) => `₦${v.toFixed(0)}M`), x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } } }
+    }
+  });
+
+  // Transactions chart
+  destroyChart('txnChart');
+  charts['txnChart'] = new Chart(document.getElementById('txnChart'), {
+    type: 'line',
+    data: {
+      labels: SHORT,
+      datasets: [
+        { label: 'Transactions', data: D.txns.map(t => t/1e3), borderColor: '#00D9A0', backgroundColor: 'rgba(0,217,160,0.08)', borderWidth: 2, fill: true, tension: 0.3, pointBackgroundColor: '#00D9A0', pointRadius: 4 },
+        { label: '/Day', data: D.txnsDay.map(t => t/1e3), borderColor: '#F5A623', backgroundColor: 'transparent', borderWidth: 1.5, borderDash: [4,4], tension: 0.3, pointRadius: 3, yAxisID: 'y2' }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle } },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } },
+        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont, callback: (v) => `${v.toFixed(0)}K` } },
+        y2: { display: false }
+      }
+    }
+  });
+
+  // YoY Chart
+  destroyChart('yoyChart');
+  charts['yoyChart'] = new Chart(document.getElementById('yoyChart'), {
+    type: 'bar',
+    data: {
+      labels: SHORT,
+      datasets: [
+        { label: 'YoY %', data: yoy, backgroundColor: yoy.map(v => v >= 0 ? 'rgba(0,217,160,0.7)' : 'rgba(255,77,106,0.6)'), borderColor: yoy.map(v => v >= 0 ? '#00D9A0' : '#FF4D6A'), borderWidth: 1, borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => ` ${ctx.parsed.y.toFixed(1)}% YoY` } } },
+      scales: {
+        x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } },
+        y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont, callback: (v) => `${v}%` } }
+      }
+    }
+  });
+  // Update badge
+  const lastYoy = yoy[6];
+  const badge = document.getElementById('yoy-badge');
+  badge.textContent = fmtPct(lastYoy) + ' Latest YoY';
+  badge.className = 'alert-pill ' + (lastYoy >= 0 ? 'up' : 'down');
+
+  // MAU Chart
+  destroyChart('mauChart');
+  charts['mauChart'] = new Chart(document.getElementById('mauChart'), {
+    type: 'bar',
+    data: {
+      labels: SHORT,
+      datasets: [
+        { label: 'MAU', data: D.mau, backgroundColor: 'rgba(139,92,246,0.6)', borderColor: '#8B5CF6', borderWidth: 1, borderRadius: 4, order: 2 },
+        { label: 'New Users', data: D.newUsers, type: 'line', borderColor: '#00D9A0', backgroundColor: 'transparent', borderWidth: 2, pointBackgroundColor: '#00D9A0', pointRadius: 4, tension: 0.3, order: 1 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle } },
+      scales: { x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } }, y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont, callback: (v) => v >= 1000 ? `${(v/1000).toFixed(0)}K` : v } } }
+    }
+  });
+
+  // Retention Chart
+  destroyChart('retentionChart');
+  charts['retentionChart'] = new Chart(document.getElementById('retentionChart'), {
+    type: 'line',
+    data: {
+      labels: SHORT,
+      datasets: [
+        { label: 'Retention', data: D.retention, borderColor: '#00D9A0', backgroundColor: 'rgba(0,217,160,0.06)', fill: true, borderWidth: 2, tension: 0.3, pointBackgroundColor: '#00D9A0', pointRadius: 4 },
+        { label: 'Churn', data: D.churn, borderColor: '#FF4D6A', backgroundColor: 'rgba(255,77,106,0.06)', fill: true, borderWidth: 2, tension: 0.3, pointBackgroundColor: '#FF4D6A', pointRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(2)}%` } } },
+      scales: { x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } }, y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont, callback: (v) => `${v}%` }, min: 0, max: 100 } }
+    }
+  });
+
+  // Net Growth Chart
+  destroyChart('netGrowthChart');
+  charts['netGrowthChart'] = new Chart(document.getElementById('netGrowthChart'), {
+    type: 'bar',
+    data: {
+      labels: SHORT,
+      datasets: [{ label: 'Net Growth', data: netGrowth, backgroundColor: netGrowth.map(v => v >= 0 ? 'rgba(0,217,160,0.7)' : 'rgba(255,77,106,0.6)'), borderColor: netGrowth.map(v => v >= 0 ? '#00D9A0' : '#FF4D6A'), borderWidth: 1, borderRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => ` Net: ${ctx.parsed.y >= 0 ? '+' : ''}${ctx.parsed.y.toLocaleString()} users` } } },
+      scales: { x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } }, y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } } }
+    }
+  });
+
+  // CAC Chart
+  destroyChart('cacChart');
+  charts['cacChart'] = new Chart(document.getElementById('cacChart'), {
+    type: 'line',
+    data: {
+      labels: SHORT,
+      datasets: [{ label: 'CAC', data: D.cac, borderColor: '#F5A623', backgroundColor: 'rgba(245,166,35,0.06)', fill: true, borderWidth: 2, tension: 0.3, pointBackgroundColor: '#F5A623', pointRadius: 5 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => ` CAC: ₦${ctx.parsed.y.toFixed(2)}` } } },
+      scales: { x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } }, y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont, callback: (v) => `₦${v}` }, reverse: true } }
+    }
+  });
+
+  // ScanPay chart
+  destroyChart('spChart');
+  const spMonths = ['Jun','Jul','Aug','Sep','Oct','Nov','Dec','Q1 26'];
+  const spAdopt  = [3.5, 8.2, 6.2, 5.8, 13.2, 26.1, 39.5, 44.3];
+  charts['spChart'] = new Chart(document.getElementById('spChart'), {
+    type: 'line',
+    data: {
+      labels: spMonths,
+      datasets: [{ label: 'Adoption %', data: spAdopt, borderColor: '#00D9A0', backgroundColor: 'rgba(0,217,160,0.08)', fill: true, borderWidth: 2.5, tension: 0.3, pointBackgroundColor: spMonths.map((_, i) => i === spMonths.length-1 ? '#00D9A0' : '#6432EB'), pointRadius: spMonths.map((_, i) => i === spMonths.length-1 ? 7 : 4) }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => ` Adoption: ${ctx.parsed.y}%` } } },
+      scales: { x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } }, y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont, callback: (v) => `${v}%` }, min: 0, max: 55 } }
+    }
+  });
+
+  // Engagement chart
+  destroyChart('engageChart');
+  charts['engageChart'] = new Chart(document.getElementById('engageChart'), {
+    type: 'bar',
+    data: {
+      labels: SHORT,
+      datasets: [{ label: 'Avg Txns/User', data: D.avgTxUser, backgroundColor: 'rgba(100,50,235,0.65)', borderColor: '#6432EB', borderWidth: 1, borderRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle } },
+      scales: { x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } }, y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } } }
+    }
+  });
+
+  // Repeat txn chart
+  destroyChart('repeatChart');
+  charts['repeatChart'] = new Chart(document.getElementById('repeatChart'), {
+    type: 'line',
+    data: {
+      labels: SHORT,
+      datasets: [{ label: 'Repeat Rate %', data: D.repeat, borderColor: '#8B5CF6', backgroundColor: 'rgba(139,92,246,0.06)', fill: true, borderWidth: 2, tension: 0.3, pointBackgroundColor: '#8B5CF6', pointRadius: 4 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { ...tooltipStyle, callbacks: { label: (ctx) => ` ${ctx.parsed.y.toFixed(2)}%` } } },
+      scales: { x: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont } }, y: { grid: { color: gridColor }, ticks: { color: tickColor, font: tickFont, callback: (v) => `${v}%` }, min: 93, max: 100 } }
+    }
+  });
+}
+
+// ============ INTERACTIONS ============
+function setMonth(idx) {
+  currentMonth = idx;
+  MONTHS.forEach((_, i) => {
+    const btn = document.getElementById(`btn-${i}`);
+    btn.classList.toggle('active', i === idx);
+  });
+  renderKPIs(idx);
+}
+
+function setView(v) {
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+  renderKPIs(0);
+  renderAttrition();
+  buildCharts();
+});
+</script>
+</body>
+</html>
